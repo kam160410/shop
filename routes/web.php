@@ -14,3 +14,6 @@
 
 
 Route::get('/','PagesController@root')->name('root');
+
+Auth::routes();  //laravel的用户认证路由
+
