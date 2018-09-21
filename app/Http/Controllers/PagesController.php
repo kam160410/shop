@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
+
     /**
      * 首页展示
      */

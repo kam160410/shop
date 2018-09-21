@@ -6,8 +6,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+
 use Illuminate\Support\Str;
 use Cache;
+
 class EmailVerificationNotification extends Notification
 {
     use Queueable;

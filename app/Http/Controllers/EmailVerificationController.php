@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Exception;
+
 use App\Models\User;
 use Cache;
 use App\Notifications\EmailVerificationNotification;
+use App\Exceptions\InvalidRequestException;
 class EmailVerificationController extends Controller
 {
     //验证邮箱
@@ -18,7 +20,7 @@ class EmailVerificationController extends Controller
 
         // 如果有一个为空说明不是一个合法的验证链接，直接抛出异常。
         if(!$email && !$token){
-            throw new Exception("验证链接不正确");
+            throw new InvalidRequestException("验证链接不正确");
         }
 
         // 从缓存中读取数据，我们把从 url 中获取的 `token` 与缓存中的值做对比
@@ -29,14 +31,14 @@ class EmailVerificationController extends Controller
 
 
         if($token != $verify_token ){
-            throw new Exception('验证链接不正确或已过期');
+            throw new InvalidRequestException('验证链接不正确或已过期');
         }
 
         // 根据邮箱从数据库中获取对应的用户
         // 通常来说能通过 token 校验的情况下不可能出现用户不存在
         // 但是为了代码的健壮性我们还是需要做这个判断
         if (!$user = User::where('email', $email)->first()) {
-            throw new Exception('用户不存在');
+            throw new InvalidRequestException('用户不存在');
         }
         // 将指定的 key 从缓存中删除，由于已经完成了验证，这个缓存就没有必要继续保留。
         Cache::forget("email_verification_".$email);
@@ -52,7 +54,7 @@ class EmailVerificationController extends Controller
         $user = $request->user();
         // 判断用户是否已经激活
         if ($user->email_verified) {
-            throw new Exception('你已经验证过邮箱了');
+            throw new InvalidRequestException('你已经验证过邮箱了');
         }
         // 调用 notify() 方法用来发送我们定义好的通知类
         $user->notify(new EmailVerificationNotification());
