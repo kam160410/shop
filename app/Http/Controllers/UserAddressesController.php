@@ -30,8 +30,34 @@ class UserAddressesController extends Controller
         $request->user()->addresses()->create($request->only([
             'province','city','district','address','zip','contact_name','contact_phone'
         ]));
+
         return redirect()->route('user_addresses.index');
     }
-    
-    
+
+    //编辑地址展示页
+    public function edit(UserAddress $user_address)
+    {
+        $this->authorize('own',$user_address);
+        return view('user_address.create_and_edit',['address'=>$user_address]);
+    }
+
+    //编辑地址操作
+    public function update(UserAddress $user_address,UserAddressRequest $request)
+    {
+        $this->authorize('own',$user_address);
+        $user_address->update($request->only([
+            'province','city','district','zip','address','contact_name','contact_phone'
+        ]));
+
+        return redirect()->route('user_addresses.index');
+    }
+
+    //删除地址操作
+    public function destroy(UserAddress $user_address)
+    {
+        $this->authorize('own',$user_address);
+        $user_address->delete();
+        return json_encode(['msg'=>'删除成功']);
+    }
+        
 }

@@ -21,22 +21,76 @@
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($addresses as $address)
+                        @if(count($addresses)>0 )
+                            @foreach($addresses as $address)
+                                <tr>
+                                    <td>{{ $address->contact_name }}</td>
+                                    <td>{{ $address->full_address }}</td>
+                                    <td>{{ $address->zip }}</td>
+                                    <td>{{ $address->contact_phone }}</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="{{route('user_addresses.edit',['user_address'=>$address->id])}}">修改</a>
+                                        <form action="{{route('user_addresses.destroy',['user_address'=>$address->id])}}" method="post" style="display: inline-block;">
+                                            {{method_field('DELETE')}}
+                                            {{csrf_field()}}
+                                            <button type="button" class="btn btn-danger del-address-btn" data-id="{{$address->id}}">删除</button>
+                                        </form>
+
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
                             <tr>
-                                <td>{{ $address->contact_name }}</td>
-                                <td>{{ $address->full_address }}</td>
-                                <td>{{ $address->zip }}</td>
-                                <td>{{ $address->contact_phone }}</td>
-                                <td>
-                                    <button class="btn btn-primary">修改</button>
-                                    <button class="btn btn-danger">删除</button>
+                                <td class="text-center" colspan="5" >
+                                    <a href="{{ route('user_addresses.create')}}" class="btn btn-info">
+                                        暂无地址，点击添加地址
+                                    </a>
                                 </td>
                             </tr>
-                        @endforeach
+
+                        @endif
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+@endsection
+
+@section('scriptAfterJs')
+    <script>
+        $(document).ready(function(){
+            $('.del-address-btn').on('click',function(){
+
+                var id = $(this).data('id');
+
+                swal({
+                    title: "确认要删除该地址？",
+                    icon: "warning",
+                    buttons: ['取消', '确定'],
+                    dangerMode: true,
+                })
+                .then(function(willDelete){
+
+                    if(!willDelete){
+                        return false;
+                    }
+
+                    axios.delete('/user_address/'+id)
+                        .then(function(data){
+                            swal({
+                                title: data.data.msg,
+                                icon: "success",
+                                dangerMode: true,
+                            })
+                            .then(function(){
+                                location.reload();
+                            })
+                        })
+
+                })
+            })
+        })
+
+    </script>
 @endsection

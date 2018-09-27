@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title', '新增收货地址')
+@section('title', ($address->id?"编辑":"新增").'收货地址')
 @section('content')
     <div class="row">
         <div class="col-lg-10 col-lg-offset-1">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="text-center">
-                        新增收货地址
+                        {{$address->id?"编辑":"新增"}}收货地址
                     </h2>
                 </div>
                 <div class="panel-body">
@@ -20,15 +20,20 @@
                                 @endforeach
                             </ul>
                         </div>
-                @endif
+                    @endif
                 <!-- 输出后端报错结束 -->
                     <!-- inline-template 代表通过内联方式引入组件 -->
                     <user-addresses-create-and-edit inline-template>
-                        <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
-                            <!-- 引入 csrf token 字段 -->
-                        {{ csrf_field() }}
-                        <!-- 注意这里多了 @change -->
-                            <select-district @change="onDistrictChanged" inline-template>
+                        @if($address->id)
+                            <form class="form-horizontal" role="form"  action="{{route('user_addresses.update',['user_address'=>$address->id])}}" method="post">
+                            {{method_field('PUT')}}
+                        @else
+                             <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+                        @endif
+                            {{csrf_field()}}
+
+                            <!-- 注意这里多了 @change -->
+                            <select-district :init-value="{{ json_encode([$address->province, $address->city, $address->district]) }}" @change="onDistrictChanged" inline-template>
                                 <div class="form-group">
                                     <label class="control-label col-sm-2">省市区</label>
                                     <div class="col-sm-3">
@@ -82,9 +87,10 @@
                                 </div>
                             </div>
                             <div class="form-group text-center">
+
                                 <button type="submit" class="btn btn-primary">提交</button>
                             </div>
-                        </form>
+                             </form>
                     </user-addresses-create-and-edit>
                 </div>
             </div>
